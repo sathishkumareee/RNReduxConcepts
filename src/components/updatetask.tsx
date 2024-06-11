@@ -1,13 +1,38 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Modal, Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { TextInput } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { IRootState } from '../store/store';
+import { updatetask } from '../slices/taskslice';
 // import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo
 interface close{
     onClose:any
 }
 const UpdateTask:FC<close> = ({onClose}) => { // Pass onClose as a prop to handle modal close
+    const dispatch=useDispatch()
     const [task, setTask] = useState('');
     const [taskDesc, setTaskDesc] = useState('');
+    const [id, setId] = useState(0);
+    const {selectedtask} = useSelector((state:IRootState)=>state.tasks)
+
+    // useEffect(()=>{
+    //     setTask(selectedtask.task)
+    //     setTaskDesc(selectedtask.taskDesc)
+    //     setId(selectedtask.id)
+
+    // },[selectedtask])
+    useEffect(() => {
+        if (selectedtask && 'task' in selectedtask && 'taskDesc' in selectedtask && 'id' in selectedtask) {
+            setTask(selectedtask.task);
+            setTaskDesc(selectedtask.taskDesc);
+            setId(selectedtask.id);
+        }
+    }, [selectedtask]);
+
+    const handleUpdate=()=>{
+        dispatch(updatetask({task,taskDesc,id}))
+        onClose()
+    }
 
     return (
         <Modal animationType="slide" transparent>
@@ -31,7 +56,7 @@ const UpdateTask:FC<close> = ({onClose}) => { // Pass onClose as a prop to handl
                         value={taskDesc}
                         onChangeText={setTaskDesc}
                     />
-                    <TouchableOpacity style={{width:'50%',backgroundColor:'#9B29B1',borderRadius:8,alignSelf:'center',height:30,justifyContent:'center',margin:'4%'}} >
+                    <TouchableOpacity onPress={handleUpdate} style={{width:'50%',backgroundColor:'#9B29B1',borderRadius:8,alignSelf:'center',height:30,justifyContent:'center',margin:'4%'}} >
                         <Text style={{textAlign:'center',color:'#fff',fontSize:18}} >Update</Text>
                     </TouchableOpacity>
                 </View>
